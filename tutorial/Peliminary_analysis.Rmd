@@ -58,7 +58,7 @@ _BiocStyle_ introduces the following macros for referring to _R_ packages:
 * `r Rpackage("MyPkg")`, for _R_ packages that are _not_ available on _Bioconductor_, CRAN or GitHub.
 
 # Code
-```{r, results = 'hide'}
+```{r, message=FALSE}
 
 
 library(recount3)
@@ -69,7 +69,7 @@ human_projects <- available_projects()
 ```
 
 
-```{r,  results = 'hide'}
+```{r,  message = FALSE}
 
 
 
@@ -109,13 +109,8 @@ names(rse_gene_list) <- SRA_list
 ```
 
 # Explore information
-```{r}
-raw_Data <- rse_gene_list
-```
-
 
 ```{r}
-rse_gene_list <- raw_Data
 
 assay_compute <- function(x) {
   assay(x, "counts") <- compute_read_counts(x)
@@ -144,6 +139,16 @@ lapply(rse_gene_list, grep_name_cols)
 
 ```
 ```{r}
+raw_Data <- rse_gene_list
+save(raw_Data, file = "../processed_data/raw_studies.RData")
+
+```
+
+
+
+```{r}
+rse_gene_list <- raw_Data
+
 rse_gene_list$SRP131336$sra_attribute.source_name_1 <- rse_gene_list$SRP131336$sra_attribute.source_name
 colnames(colData(rse_gene_list$SRP131336))[colnames(colData(rse_gene_list$SRP131336)) == "sra_attribute.source_name_1"] <- "sra_attribute.Sex"
 

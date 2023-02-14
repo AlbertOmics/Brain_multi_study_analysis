@@ -1,0 +1,621 @@
+---
+title: "Sex_differences_analysis"
+author: "Miguel Alberto Pantoja-Zepeda"
+date: "14/2/2023"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+TODO Take into account biological replicates vs replicates
+
+```{r load_data, message=FALSE}
+library(recount3)
+
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/raw_studies.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/predict_sex_studies.RData")
+```
+
+```{r, }
+names(raw_Data)
+rse_gene_list <- raw_Data
+```
+# Different studies used
+
+## Whole brain transcriptomic analysis of Tbr1-K228E mutant mice (SRP215380)
+
+
+This study looked at the effects of a specific genetic mutation associated with autism in humans (TBR1-K228E) on mice. The researchers found that mice with the TBR1-K228E mutation had changes in their brain cells and behavior that are similar to those seen in humans with autism.
+
+The study used a technique called whole brain transcriptome analysis to look at changes in gene expression in the brains of the mice. They found that the mutation led to changes in the expression of genes related to neurons, astrocytes, ribosomes, neuronal synapses, and autism risk.
+
+In addition, the mice with the mutation showed changes in their behavior, including decreased social interaction and increased self-grooming, as well as increased anxiety-like behavior. The researchers also found abnormalities in the distribution of certain brain cells (parvalbumin-positive interneurons) and in synaptic transmission (inhibitory synaptic transmission in layer 6 pyramidal neurons).
+
+Genotype   | Effects
+------- | -----
+Wild-type | Normal behavior and brain cell distribution
+Tbr1+/K228E  | Decreased social interaction, increased self-grooming, and increased anxiety-like behavior. Abnormal distribution of parvalbumin-positive interneurons. Changes in expression of genes related to neurons, astrocytes, ribosomes, neuronal synapses.
+
+
+
+```{r pressure, echo=FALSE}
+  lapply(colData(rse_gene_list$SRP215380)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP215380)))
+  ],table)
+
+
+
+```
+```{r}
+rse_gene_list$SRP215380$sra_attribute.genotype <-  gsub('Tbr1 hetero', 'Tbr1_+/K228E',rse_gene_list$SRP215380$sra_attribute.genotype )
+
+rse_gene_list$SRP215380$sra_attribute.genotype <-  gsub('Tbr1 homo', 'Tbr1_K228E/K228E',rse_gene_list$SRP215380$sra_attribute.genotype )
+
+rse_gene_list$SRP215380$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP215380$sra_attribute.strain)) 
+
+```
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP215380)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP215380)))
+  ],table)
+
+
+```
+##  (SRP128050)
+
+This study investigated how life experiences can affect the way genes are turned on and off in the brain. The researchers focused on a protein called EGR1, which is important for memory formation, and how it interacts with another protein called TET1 to remove chemical marks on genes that can control their activity. They found that EGR1 and TET1 work together to shape the "methylome" of the brain - the chemical modifications on DNA that can control gene activity. This process is important for the brain to develop and change in response to experiences.
+
+The study used a technique called EGR1 ChIP-seq to identify where EGR1 binds to DNA in the brain, and found that these sites become less methylated in mature neurons but remain heavily methylated in glia. The researchers also found that mice lacking either EGR1 or TET1 had similar changes in gene expression and DNA methylation patterns in the brain's frontal cortex.
+
+
+Genotype	| Effects
+-------|--------
+Wild-type	| EGR1 recruits TET1 to shape the brain methylome during development and in response to neuronal activity.
+Egr1 knockout	| Similar changes in gene expression and DNA methylation patterns to Tet1 knockout in the brain's frontal cortex.
+Tet1 knockout |	Similar changes in gene expression and DNA methylation patterns to Egr1 knockout in the brain's frontal cortex.
+
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP128050)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP128050)))
+  ],table)
+
+
+
+```
+
+```{r}
+colnames(colData(rse_gene_list$SRP128050))[colnames(colData(rse_gene_list$SRP128050)) == "sra_attribute.tissue/cell_type"] <- "sra_attribute.tissue"
+
+colnames(colData(rse_gene_list$SRP128050))[colnames(colData(rse_gene_list$SRP128050)) == "sra_attribute.developmental_stage"] <- "sra_attribute.age"
+
+colnames(colData(rse_gene_list$SRP128050))[colnames(colData(rse_gene_list$SRP128050)) == "sra_attribute.gender"] <- "sra_attribute.Sex"
+
+rse_gene_list$SRP128050$sra_attribute.tissue <- rep('Frontal cortex', length(rse_gene_list$SRP128050$sra_attribute.tissue)) 
+
+rse_gene_list$SRP128050$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP128050$sra_attribute.strain)) 
+
+
+rse_gene_list$SRP128050$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP128050$sra_attribute.source_name)) 
+
+rse_gene_list$SRP128050$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP128050$sra_attribute.source_name)) 
+
+rse_gene_list$SRP128050$sra_attribute.genotype <-  gsub('Egr1-KO', 'Egr1_-/-',rse_gene_list$SRP128050$sra_attribute.genotype )
+
+rse_gene_list$SRP128050$sra_attribute.genotype <-  gsub('Tet1-KO', 'Tet1_-/-',rse_gene_list$SRP128050$sra_attribute.genotype )
+
+```
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP128050)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP128050)))
+  ],table)
+
+
+
+```
+
+
+##  (SRP199237)
+
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP199237)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP199237)))
+  ],table)
+
+
+```
+
+```{r}
+rse_gene_list$SRP199237$sra_attribute.age <-  gsub('8 months', 'M8',rse_gene_list$SRP199237$sra_attribute.age )
+
+
+colnames(colData(rse_gene_list$SRP199237))[colnames(colData(rse_gene_list$SRP199237)) == "sra_attribute.strain/background"] <- "sra_attribute.strain"
+
+colnames(colData(rse_gene_list$SRP199237))[colnames(colData(rse_gene_list$SRP199237)) == "sra_attribute.genotype/variation"] <- "sra_attribute.genotype"
+
+
+rse_gene_list$SRP199237$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP199237$sra_attribute.source_name)) 
+
+rse_gene_list$SRP199237$sra_attribute.strain <-  gsub('CAST', 'B6_CAST',rse_gene_list$SRP199237$sra_attribute.strain )
+rse_gene_list$SRP199237$sra_attribute.strain<-  gsub('PWK', 'B6_PWK',rse_gene_list$SRP199237$sra_attribute.strain )
+rse_gene_list$SRP199237$sra_attribute.strain <-  gsub('WSB', 'B6_WSB',rse_gene_list$SRP199237$sra_attribute.strain )
+```
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP199237)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP199237)))
+  ],table)
+
+```
+##  (SRP152324)
+This project used RNA sequencing to study the molecular basis of miR-7 and miR-17-92 regulation in the POMC neuron and sex-differential expression of genes in the arcuate nucleus. The researchers found that these microRNAs are expressed in proopiomelanocortin (POMC)-expressing neurons in the mouse ARC, and that specific knockdown or knockout of these microRNAs affects diet-induced obesity in a sex-specific manner. They also identified target genes that show sex-differential expression in the ARC and respond to high-fat diet treatment. RNA sequencing was performed on ARC tissues from male miR-17-92 knockout mice, female miR-7-sponge mice, male and female wild-type mice, and the transcript abundances were estimated for each sample.
+
+
+
+Genotype	| Effects
+-------|--------
+Male miR-17-92 knockout	| Aggravated diet-induced obesity in males
+Female miR-7-sponge |	Aggravated diet-induced obesity in females
+Male and female wild-type	| Identified sex-differentially expressed genes in the ARC and their response to HFD
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP152324)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP152324)))
+  ],table)
+
+
+```
+```{r}
+colnames(colData(rse_gene_list$SRP152324))[colnames(colData(rse_gene_list$SRP152324)) == "sra_attribute.genotype/variation"] <- "sra_attribute.genotype"
+
+colnames(colData(rse_gene_list$SRP152324))[colnames(colData(rse_gene_list$SRP152324)) == "sra_attribute.gender"] <- "sra_attribute.Sex"
+
+colnames(colData(rse_gene_list$SRP152324))[colnames(colData(rse_gene_list$SRP152324)) == "sra_attribute.strain/background"] <- "sra_attribute.strain"
+
+
+rse_gene_list$SRP152324$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP152324$sra_attribute.strain)) 
+
+rse_gene_list$SRP152324$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP152324$sra_attribute.source_name)) 
+
+rse_gene_list$SRP152324$sra_attribute.strain <-  gsub('wild type', 'WT',rse_gene_list$SRP152324$sra_attribute.strain )
+
+
+rse_gene_list$SRP152324$sra_attribute.genotype <-  gsub('Pomc-Cre;', '',rse_gene_list$SRP152324$sra_attribute.genotype )
+
+
+rse_gene_list$SRP152324$sra_attribute.age <-  gsub('4 months', 'M4',rse_gene_list$SRP152324$sra_attribute.age )
+
+
+
+```
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP152324)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP152324)))
+  ],table)
+
+
+```
+
+##  (SRP152966)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP152966)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP152966)))
+  ],table)
+
+
+```
+
+
+```{r}
+colnames(colData(rse_gene_list$SRP152966))[colnames(colData(rse_gene_list$SRP152966)) == "sra_attribute.genotype/variation"] <- "sra_attribute.genotype"
+
+colnames(colData(rse_gene_list$SRP152966))[colnames(colData(rse_gene_list$SRP152966)) == "sra_attribute.strain/background"] <- "sra_attribute.strain"
+
+colnames(colData(rse_gene_list$SRP152966))[colnames(colData(rse_gene_list$SRP152966)) == "sra_attribute.diet"] <- "sra_attribute.genotype"
+
+
+rse_gene_list$SRP152966$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP152966$sra_attribute.strain)) 
+
+
+rse_gene_list$SRP152966$sra_attribute.age <-  gsub('7 months', 'M7',rse_gene_list$SRP152966$sra_attribute.age )
+
+rse_gene_list$SRP152966$sra_attribute.genotype <-  gsub('every-other-day ', '',rse_gene_list$SRP152966$sra_attribute.genotype )
+
+rse_gene_list$SRP152966$sra_attribute.Sex <- rep('male', length(rse_gene_list$SRP152966$sra_attribute.strain)) 
+
+```
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP152966)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP152966)))
+  ],table)
+
+
+```
+##  (SRP131336)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP131336)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP131336)))
+  ],table)
+
+
+```
+
+
+
+```{r}
+colnames(colData(rse_gene_list$SRP131336))[colnames(colData(rse_gene_list$SRP131336)) == "sra_attribute.genotype/variation"] <- "sra_attribute.genotype"
+
+colnames(colData(rse_gene_list$SRP131336))[colnames(colData(rse_gene_list$SRP131336)) == "sra_attribute.strain_background"] <- "sra_attribute.strain"
+
+colnames(colData(rse_gene_list$SRP131336))[colnames(colData(rse_gene_list$SRP131336)) == "sra_attribute.diet"] <- "sra_attribute.genotype"
+
+
+rse_gene_list$SRP131336$sra_attribute.tissue <- rep('Hippocampus', length(rse_gene_list$SRP131336$sra_attribute.tissue)) 
+
+rse_gene_list$SRP131336$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP131336$sra_attribute.strain)) 
+rse_gene_list$SRP131336$sra_attribute.Sex <- rse_gene_list$SRP131336$sra_attribute.source_name
+rse_gene_list$SRP131336$sra_attribute.Sex <-  gsub('wild type_', '',rse_gene_list$SRP131336$sra_attribute.Sex )
+rse_gene_list$SRP131336$sra_attribute.Sex <-  gsub('mutant_', '',rse_gene_list$SRP131336$sra_attribute.Sex )
+rse_gene_list$SRP131336$sra_attribute.Sex <-  gsub('_brain', '',rse_gene_list$SRP131336$sra_attribute.Sex )
+
+rse_gene_list$SRP131336$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP131336$sra_attribute.source_name)) 
+
+
+
+rse_gene_list$SRP131336$sra_attribute.genotype <-  gsub('CHD8 Asn2373LysfsX2 heterozygote mutant', 'CHD8_-/N2373K',rse_gene_list$SRP131336$sra_attribute.genotype )
+
+
+rse_gene_list$SRP131336$sra_attribute.genotype <-  gsub('wild type', 'WT',rse_gene_list$SRP131336$sra_attribute.genotype )
+
+```
+
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP131336)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP131336)))
+  ],table)
+
+
+```
+
+
+##  (SRP130908)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP130908)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP130908)))
+  ],table)
+
+```
+
+
+```{r}
+rse_gene_list$SRP130908$sra_attribute.genotype <- paste(rse_gene_list$SRP130908$sra_attribute.generation,rse_gene_list$SRP130908$sra_attribute.treatment, sep='_')
+
+
+rse_gene_list$SRP130908$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP130908$sra_attribute.strain)) 
+
+rse_gene_list$SRP130908$sra_attribute.Sex <- rep('unknown', length(rse_gene_list$SRP130908$sra_attribute.strain)) 
+
+
+rse_gene_list$SRP130908$sra_attribute.genotype <-  gsub('wild type', 'WT',rse_gene_list$SRP130908$sra_attribute.genotype )
+
+colData(rse_gene_list$SRP130908) <- subset(colData(rse_gene_list$SRP130908), select = -c(sra_attribute.generation, sra_attribute.treatment))  
+
+rse_gene_list$SRP130908$sra_attribute.age <- rep('unknown', length(rse_gene_list$SRP130908$sra_attribute.source_name)) 
+
+```
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP130908)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP130908)))
+  ],table)
+
+```
+
+
+##  (SRP100500)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP100500)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP100500)))
+  ],table)
+
+```
+ cells sorted and expanded from embryonic cortices of electroporated mice at 72 hours (preneoplastic; n = 16) and 5-9 months (tumor; n = 5) post-IUE f
+
+
+```{r}
+rse_gene_list$SRP100500$sra_attribute.tissue <- rse_gene_list$SRP100500$sra_attribute.cell_type
+
+rse_gene_list$SRP100500$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP100500$sra_attribute.strain)) 
+
+
+rse_gene_list$SRP100500$sra_attribute.genotype <-  gsub('wild type', 'WT',rse_gene_list$SRP100500$sra_attribute.genotype )
+
+rse_gene_list$SRP100500$sra_attribute.genotype <-  gsub(' ', '',rse_gene_list$SRP100500$sra_attribute.genotype )
+
+
+colData(rse_gene_list$SRP100500) <- subset(colData(rse_gene_list$SRP100500), select = -c(sra_attribute.cell_type, sra_attribute.tumor_status))  
+
+rse_gene_list$SRP100500$sra_attribute.Sex <- rep('unknown', length(rse_gene_list$SRP100500$sra_attribute.strain)) 
+
+
+rse_gene_list$SRP100500$sra_attribute.age <- rse_gene_list$SRP100500$sra_attribute.tissue
+
+rse_gene_list$SRP100500$sra_attribute.age <-  gsub('neural progenitor cells', 'E_?',rse_gene_list$SRP100500$sra_attribute.age )
+rse_gene_list$SRP100500$sra_attribute.age <-  gsub('tumor cells', 'M5-9',rse_gene_list$SRP100500$sra_attribute.age )
+
+rse_gene_list$SRP100500$sra_attribute.tissue <-  gsub('tumor cells', 'tumor',rse_gene_list$SRP100500$sra_attribute.tissue )
+
+```
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP100500)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP100500)))
+  ],table)
+
+```
+
+##  (SRP125754)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP125754)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP125754)))
+  ],table)
+
+rse_gene_list$SRP125754$sra_attribute.genotype <-  rep('unknown', length(rse_gene_list$SRP125754$sra_attribute.strain)) 
+
+```
+
+
+```{r}
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='Healthy brain control', c('sra_attribute.strain','sra_attribute.source_name','sra_attribute.agent'
+)]
+
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='Healthy brain control', c('sra_attribute.genotype')] <- rep('WT', sum(colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='Healthy brain control')) 
+
+```
+```{r}
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='Brain tumor', c('sra_attribute.strain','sra_attribute.source_name','sra_attribute.agent'
+)]
+
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='Brain tumor', c('sra_attribute.genotype')] <- paste('Tumor', colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='Brain tumor', c('sra_attribute.agent')] )
+
+```
+Probablemente la muestra que nos falta....
+```{r}
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='GL261 tumor tissue, VEGF-A blockade,200ug mAb/ dose', c('sra_attribute.strain','sra_attribute.agent'
+)]
+
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='GL261 tumor tissue, VEGF-A blockade,200ug mAb/ dose',  c('sra_attribute.genotype')] <- rep('Tumor', sum(colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='GL261 tumor tissue, VEGF-A blockade,200ug mAb/ dose')) 
+
+```
+```{r}
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='GL261 tumor tissue, No treat control', c('sra_attribute.strain','sra_attribute.agent'
+)]
+
+
+colData(rse_gene_list$SRP125754)[colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='GL261 tumor tissue, No treat control',  c('sra_attribute.genotype')] <- rep('Tumor', sum(colData(rse_gene_list$SRP125754)$sra_attribute.tissue=='GL261 tumor tissue, No treat control')) 
+```
+
+
+```{r}
+rse_gene_list$SRP125754$sra_attribute.Sex <- rep('unknown', length(rse_gene_list$SRP125754$sra_attribute.strain)) 
+
+```
+
+
+```{r}
+
+rse_gene_list$SRP125754$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP125754$sra_attribute.strain)) 
+
+rse_gene_list$SRP125754$sra_attribute.tissue <-  factor(tolower(rse_gene_list$SRP125754$sra_attribute.tissue))
+rse_gene_list$SRP125754$sra_attribute.tissue <- factor(ifelse(rse_gene_list$SRP125754$sra_attribute.tissue == 'healthy brain control', "brain", "tumor"))
+
+rse_gene_list$SRP125754$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP125754$sra_attribute.source_name)) 
+
+
+colData(rse_gene_list$SRP125754) <- subset(colData(rse_gene_list$SRP125754), select = -c(sra_attribute.agent))  
+
+rse_gene_list$SRP125754$sra_attribute.age <- rep('unknown', length(rse_gene_list$SRP125754$sra_attribute.source_name)) 
+
+
+```
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP125754)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP125754)))
+  ],table)
+
+
+```
+##  (SRP174174)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP174174)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP174174)))
+  ],table)
+
+```
+```{r}
+rse_gene_list$SRP174174$sra_attribute.tissue <- rep('brain', length(rse_gene_list$SRP174174$sra_attribute.source_name)) 
+
+rse_gene_list$SRP174174$sra_attribute.Sex <- rep('unknown', length(rse_gene_list$SRP174174$sra_attribute.source_name)) 
+
+rse_gene_list$SRP174174$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP174174$sra_attribute.source_name)) 
+
+
+rse_gene_list$SRP174174$sra_attribute.age <- rep('P18-P180', length(rse_gene_list$SRP174174$sra_attribute.source_name)) 
+
+```
+ both female and male mice were used
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP174174)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP174174)))
+  ],table)
+
+```
+
+
+##  (SRP099692)
+
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP099692)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP099692)))
+  ],table)
+
+
+```
+```{r}
+
+colnames(colData(rse_gene_list$SRP099692))[colnames(colData(rse_gene_list$SRP099692)) == "sra_attribute.genotype/variation"] <- "sra_attribute.genotype"
+
+colnames(colData(rse_gene_list$SRP099692))[colnames(colData(rse_gene_list$SRP099692)) == "sra_attribute.strain/background"] <- "sra_attribute.strain"
+
+rse_gene_list$SRP099692$sra_attribute.genotype <- paste(rse_gene_list$SRP099692$sra_attribute.treatment, rse_gene_list$SRP099692$sra_attribute.genotype) 
+
+rse_gene_list$SRP099692$sra_attribute.tissue <- rep('tumor', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
+
+rse_gene_list$SRP099692$sra_attribute.strain <- rep('B6', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
+
+rse_gene_list$SRP099692$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
+
+
+rse_gene_list$SRP099692$sra_attribute.age <- rep('P42-P56', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
+
+rse_gene_list$SRP099692$sra_attribute.Sex <- rep('unknown', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
+
+colData(rse_gene_list$SRP099692) <- subset(colData(rse_gene_list$SRP099692), select = -c(sra_attribute.treatment))  
+
+
+```
+ 
+ Studies did not discriminate sex, and both
+male and females were used.
+
+```{r , echo=FALSE}
+  lapply(colData(rse_gene_list$SRP099692)[
+      ,
+      grepl("^sra_attribute", colnames(colData(rse_gene_list$SRP099692)))
+  ],table)
+
+
+```
+# Process and Merge data
+
+## Process
+```{r}
+normalize_data <- function(x){
+  x$assigned_gene_prop <- x$recount_qc.gene_fc_count_all.assigned /     x$recount_qc.gene_fc_count_all.total
+    print(summary(x$assigned_gene_prop))
+x
+}
+
+
+rse_gene_list <- lapply(rse_gene_list, normalize_data)
+
+
+
+```
+
+```{r}
+## Guardemos nuestro objeto entero por si luego cambiamos de opinión
+rse_gene_unfiltered <- rse_gene_list
+
+```
+
+```{r, message=FALSE}
+# no hay menores a 0.3, pero si hubiera
+rse_gene_list <- rse_gene_unfiltered
+## Eliminemos a muestras malas 
+remove_check <- function(x){
+  hist(x$assigned_gene_prop)
+table(x$assigned_gene_prop < 0.3)
+}
+
+lapply(rse_gene_list, remove_check)
+
+
+```
+
+```{r,  message = FALSE}
+
+remove_failures <- function(x){
+  x <- x[, x$assigned_gene_prop > 0.3]
+  print(x)
+  gene_means <- rowMeans(assay(x, "counts"))
+  summary(gene_means)
+  x
+}
+
+rse_gene_list <- lapply(rse_gene_list, remove_failures)
+
+```
+
+## Merge
+
+```{r}
+joined_filtered_data <- cbind(rse_gene_list$SRP215380,rse_gene_list$SRP128050,rse_gene_list$SRP199237,rse_gene_list$SRP152324, rse_gene_list$SRP152966,rse_gene_list$SRP131336,rse_gene_list$SRP130908,rse_gene_list$SRP100500,rse_gene_list$SRP125754,rse_gene_list$SRP174174,rse_gene_list$SRP099692)
+```
+
+```{r}
+save(joined_filtered_data, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/better_curated_data.RData")
+
+```
+
+# Session Info
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```

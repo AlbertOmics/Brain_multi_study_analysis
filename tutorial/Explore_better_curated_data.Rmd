@@ -1,0 +1,256 @@
+---
+title: "Explore_curated_data"
+author: "Miguel Alberto Pantoja-Zepeda"
+date: "14/2/2023"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r load_data, message=FALSE}
+library(recount3)
+
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/better_curated_data.RData")
+```
+
+## Including Plots
+
+
+```{r}
+reshape_as <- function(x){
+  x$sra_attribute.age <-  factor(tolower(x$sra_attribute.age))
+  x$sra_attribute.genotype <-  factor(tolower(x$sra_attribute.genotype))
+  x$sra_attribute.Sex <-  factor(tolower(x$sra_attribute.Sex))
+
+  x$sra_attribute.tissue <-  factor(tolower(x$sra_attribute.tissue))
+  x$study <- factor(ifelse(x$sra_attribute.age == 'nada', "nada", metadata(x)$project))
+
+  x
+}
+joined_filtered_data <- reshape_as(joined_filtered_data)
+```
+
+You can also embed plots, for example:
+```{r}
+  dge <- DGEList(
+    counts = assay(joined_filtered_data, "counts"),
+    genes = rowData(joined_filtered_data)
+  )
+  dge <- calcNormFactors(dge)
+  
+library("ggplot2")
+ggplot(as.data.frame(colData(joined_filtered_data)), aes(y = assigned_gene_prop, x = sra_attribute.Sex)) +
+    geom_boxplot() +
+    theme_bw(base_size = 20) +
+    ylab("Assigned Gene Prop") +
+    xlab("Gender Group")
+
+
+```
+
+
+```{r,   results = 'hide'}
+mod <- model.matrix(~ sra_attribute.Sex +  sra_attribute.age + sra_attribute.genotype + sra_attribute.tissue,
+    data = colData(joined_filtered_data)
+)
+colnames(mod)
+```
+
+
+```{r}
+library("limma")
+
+```
+
+
+```{r}
+
+vGene <- voom(dge, mod, plot = TRUE)
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- topTable(
+    eb_results,
+    coef = 2,
+    number = nrow(joined_filtered_data),
+    sort.by = "none"
+)
+dim(de_results)
+```
+
+```{r}
+table(de_results$adj.P.Val < 0.05)
+
+```
+
+
+```{r}
+de_results.filt <- de_results[de_results$adj.P.Val < 0.05,]  #filtering by FDR < 0.01
+all_DEgenes <- de_results.filt[abs(de_results.filt$logFC)>2,] # filtering by logFC > 2
+DEgenes <- rownames(all_DEgenes) 
+plotMA(eb_results, coef = 2, status = rownames(eb_results$lods) %in% DEgenes, legend = FALSE,
+main = "MA plot")
+legend("bottomright", c("DE genes", "Not DE genes"), fill = c("red", "black"), inset = 0.01)
+```
+
+```{r}
+library(EnhancedVolcano)
+
+```
+
+
+```{r}
+
+
+FC <- 2
+p <- 0.05
+keyvals <- rep('grey75', nrow(de_results))
+names(keyvals) <- rep('NS', nrow(de_results))
+
+keyvals[which(abs(de_results$logFC  ) > FC & de_results$P.Value > p)] <- 'grey50'
+names(keyvals)[which(abs(de_results$logFC) > FC & de_results$P.Value > p)] <- 'log2FoldChange'
+
+keyvals[which(abs(de_results$logFC  ) < FC & de_results$P.Value < p)] <- 'grey25'
+names(keyvals)[which(abs(de_results$logFC  ) < FC & de_results$P.Value < p)] <- '-Log10Q'
+
+keyvals[which(de_results$logFC < -FC & de_results$P.Value < p)] <- 'blue2'
+names(keyvals)[which(de_results$logFC  < -FC & de_results$P.Value < p)] <- 'Signif. down-regulated'
+
+keyvals[which(de_results$logFC > FC & de_results$P.Value < p)] <- 'red2'
+names(keyvals)[which(de_results$logFC > FC & de_results$P.Value < p)] <- 'Signif. up-regulated'
+
+unique(keyvals)
+unique(names(keyvals))
+
+EnhancedVolcano(de_results,
+  lab = de_results$gene_name,
+  x = 'logFC',
+  y = 'adj.P.Val',
+  title = 'Volcano plot',
+  pCutoff = 0.05,
+  FCcutoff = 2,
+  pointSize = 2.5,
+  labSize = 4.5,
+  colCustom = keyvals,
+  colAlpha = 0.75,
+  legendPosition = 'right',
+  legendLabSize = 15,
+  legendIconSize = 5.0,
+  drawConnectors = TRUE,
+  widthConnectors = 0.5,
+  colConnectors = 'grey50',
+  gridlines.major = TRUE,
+  gridlines.minor = FALSE,
+  border = 'partial')
+```
+
+
+```{r}
+## Extraer valores de los genes de interés
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
+rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
+
+## Creemos una tabla con información de las muestras
+## y con nombres de columnas más amigables
+df <- as.data.frame(colData(joined_filtered_data)[, c("sra_attribute.Sex", "sra_attribute.age","sra_attribute.genotype","sra_attribute.tissue","study")])
+colnames(df) <- c("Gender", "Age", "Genotype", "Tissue", "Project")
+
+
+
+## Hagamos un heatmap
+library("pheatmap")
+pheatmap(
+    exprs_heatmap,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df
+)
+```
+
+```{r}
+library(dplyr)
+sex_genes <- c('Uty','Ddx3y','Kdm5d','Eif2s3y', 'Xist', 'Tsix')
+raw_selection <- as_tibble(t(exprs_heatmap[sex_genes,]),rownames = "idx")
+raw_selection <- raw_selection %>% 
+  mutate(Predicted_sex = case_when(
+    Uty < 0 & Ddx3y < 0 & Kdm5d < 0 & Eif2s3y < 0 & Xist > 0 & Tsix > 0 ~ "female",
+    Uty > 0 & Ddx3y > 0 & Kdm5d > 0 & Eif2s3y > 0 & Xist < 3 & Tsix < 3 ~ "male",
+    TRUE ~ "unknown"
+  ))
+table(raw_selection$Predicted_sex)
+```
+```{r}
+classification <- DataFrame(raw_selection)
+rownames(classification) <- classification$idx
+classification
+```
+
+```{r}
+test_prediction <- classification[colnames(joined_filtered_data),'Predicted_sex']==joined_filtered_data$sra_attribute.Sex
+#Which ones are different from the prediction?
+table(joined_filtered_data$sra_attribute.Sex[!test_prediction])
+
+joined_filtered_data$Predicted_sex <- classification[colnames(joined_filtered_data),'Predicted_sex']
+table(classification[colnames(joined_filtered_data),'Predicted_sex'])
+table(joined_filtered_data$Predicted_sex)
+```
+
+
+```{r}
+  dge <- DGEList(
+    counts = assay(joined_filtered_data, "counts"),
+    genes = rowData(joined_filtered_data)
+  )
+  dge <- calcNormFactors(dge)
+  
+  mod <- model.matrix(~ Predicted_sex +  sra_attribute.age + sra_attribute.genotype + sra_attribute.tissue,
+    data = colData(joined_filtered_data)
+)
+  
+  vGene <- voom(dge, mod, plot = TRUE)
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- topTable(
+    eb_results,
+    coef = 2,
+    number = nrow(joined_filtered_data),
+    sort.by = "none"
+)
+
+## Extraer valores de los genes de interés
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
+rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
+
+## Creemos una tabla con información de las muestras
+## y con nombres de columnas más amigables
+df <- as.data.frame(colData(joined_filtered_data)[, c("Predicted_sex", "sra_attribute.age","sra_attribute.tissue")])
+colnames(df) <- c("Gender", "Age","Tissue")
+
+
+
+## Hagamos un heatmap
+library("pheatmap")
+pheatmap(
+    exprs_heatmap,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df
+)
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
