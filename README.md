@@ -1,7 +1,7 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated fom README.Rmd. Please edit that file -->
 
-# MERS\_CoV\_analysis
+# MERS\_CoV\_analysis\_
 
 <!-- badges: start -->
 <!-- badges: end -->

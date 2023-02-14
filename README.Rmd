@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated fom README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# MERS_CoV_analysis
+# MERS_CoV_analysis_
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -20,7 +20,7 @@ The goal of MERS_CoV_analysis is to ...
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
-```{r cars}
+```{r cars, style="background: pink;"}
 summary(cars)
 ```
 
