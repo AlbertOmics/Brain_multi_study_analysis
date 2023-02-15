@@ -382,8 +382,8 @@ rse_gene_list$SRP100500$sra_attribute.Sex <- rep('unknown', length(rse_gene_list
 
 rse_gene_list$SRP100500$sra_attribute.age <- rse_gene_list$SRP100500$sra_attribute.tissue
 
-rse_gene_list$SRP100500$sra_attribute.age <-  gsub('neural progenitor cells', 'E_?',rse_gene_list$SRP100500$sra_attribute.age )
-rse_gene_list$SRP100500$sra_attribute.age <-  gsub('tumor cells', 'M5-9',rse_gene_list$SRP100500$sra_attribute.age )
+rse_gene_list$SRP100500$sra_attribute.age <-  gsub('neural progenitor cells', 'E_',rse_gene_list$SRP100500$sra_attribute.age )
+rse_gene_list$SRP100500$sra_attribute.age <-  gsub('tumor cells', 'M5_9',rse_gene_list$SRP100500$sra_attribute.age )
 
 rse_gene_list$SRP100500$sra_attribute.tissue <-  gsub('tumor cells', 'tumor',rse_gene_list$SRP100500$sra_attribute.tissue )
 
@@ -532,7 +532,7 @@ rse_gene_list$SRP099692$sra_attribute.strain <- rep('B6', length(rse_gene_list$S
 rse_gene_list$SRP099692$sra_attribute.source_name <- rep('Brain', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
 
 
-rse_gene_list$SRP099692$sra_attribute.age <- rep('P42-P56', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
+rse_gene_list$SRP099692$sra_attribute.age <- rep('P42_P56', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
 
 rse_gene_list$SRP099692$sra_attribute.Sex <- rep('unknown', length(rse_gene_list$SRP099692$sra_attribute.source_name)) 
 
@@ -609,10 +609,10 @@ create_age_sub_category <- function(x){
   x$age_class <- x$sra_attribute.age
 
 
-  x$age_class <-  gsub('(e_?)|(e16.5)', 'embryo',x$age_class )
-  x$age_class <-  gsub('(m4)|(m5-9)|(m7)|(m8)', 'adult',x$age_class )
-  x$age_class <-  gsub('(p25)|(p42)', 'adolescent',x$age_class )
-  x$age_class <-  gsub('(p42-p56)|(p55)', 'young adult',x$age_class )
+  x$age_class <-  gsub('(e_)|(e16.5)', 'embryo',x$age_class, ignore.case = TRUE )
+  x$age_class <-  gsub('(m4)|(m5_9)|(m7)|(m8)', 'adult',x$age_class, ignore.case = TRUE )
+  x$age_class <-  gsub('(p25)|(p42)', 'adolescent',x$age_class, ignore.case = TRUE )
+  x$age_class <-  gsub('(p42_p56)|(p55)', 'young adult',x$age_class, ignore.case = TRUE )
   x
 }
 rse_gene_list <- lapply(rse_gene_list, create_age_sub_category)
