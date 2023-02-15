@@ -1,0 +1,320 @@
+---
+title: "Analysis_per_category"
+author: "Miguel Alberto Pantoja-Zepeda"
+date: "15/2/2023"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/sex_assingned_data.RData")
+joined_filtered_data <- improve_curation
+
+```
+
+# Library
+```{r}
+library("edgeR") # BiocManager::install("edgeR", update = FALSE)
+library("ggplot2")
+library("limma")
+library("EnhancedVolcano")
+library("pheatmap")
+library("RColorBrewer")
+
+
+
+```
+
+# Functions
+
+```{r}
+source('~/Miguel_Github/Brain_multi_study_analysis/R/transcription_analysis.R')
+
+```
+
+
+
+# Analyze the WT vs others
+
+## Preview boxplots
+```{r, message=FALSE}
+
+joined_filtered_data$genotype_factor <- factor(joined_filtered_data$sra_attribute.genotype, levels=unique(joined_filtered_data$sra_attribute.genotype))
+joined_filtered_data$genotype_factor <-factor( as.integer(joined_filtered_data$genotype_factor))
+
+data_analyze <-  joined_filtered_data
+
+
+dge <- get_dge(data_analyze)
+ggplot_genotype(data_analyze)
+
+
+```
+```{r}
+get_genotype_id(data_analyze)
+```
+
+## Make model
+
+```{r}
+
+mod <- make_model_genotype(data_analyze)
+#colnames(mod)
+vGene <- voom(dge, mod, plot = TRUE)
+
+```
+
+```{r}
+
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- get_de_results(data_analyze, eb_results)
+dim(de_results)
+table(de_results$adj.P.Val < 0.05)
+
+
+```
+
+
+```{r}
+
+
+FC <- 12
+p <- 0.005
+
+make_MA_plot(de_results, eb_results, p, FC)
+```
+
+
+```{r}
+
+make_volcano(FC,p,de_results)
+
+```
+
+
+## Heatmaps
+
+```{r}
+## Extraer valores de los genes de interés
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
+rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
+
+## Creemos una tabla con información de las muestras
+## y con nombres de columnas más amigables
+df_WT_genotype <- make_heatmap(data_analyze, exprs_heatmap)
+
+save(df_WT_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/df_WT_genotype.RData")
+```
+
+## Group data
+
+```{r}
+## Para colores
+
+## Conviertiendo los grupos de edad a colores
+col.group <- df$Age
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Age, col = col.group)
+```
+
+
+```{r}
+col.group <- df$Tissue
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Tissue, col = col.group)
+```
+
+
+
+# Analyze WT female vs other females
+
+## Preview boxplots
+```{r}
+data_analyze <- joined_filtered_data[,joined_filtered_data$Predicted_sex == 'female']
+
+dge <- get_dge(data_analyze)
+
+ggplot_genotype(data_analyze)
+```
+```{r}
+get_genotype_id(data_analyze)
+
+```
+
+## Make models
+
+```{r}
+mod <- make_model_genotype(data_analyze)
+
+vGene <- voom(dge, mod, plot = TRUE)
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- get_de_results(data_analyze, eb_results)
+
+dim(de_results)
+
+table(de_results$adj.P.Val < 0.05)
+```
+
+
+```{r}
+
+FC <- 2
+p <- 0.05
+make_MA_plot(de_results, eb_results, p, FC)
+
+```
+
+
+```{r}
+make_volcano(FC,p,de_results)
+```
+
+## Heatmaps 
+
+```{r}
+## Extraer valores de los genes de interés
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
+rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
+
+df_female_genotype <- make_heatmap(data_analyze, exprs_heatmap)
+
+save(df_female_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/df_female_genotype.RData")
+
+```
+
+## Group data
+
+```{r}
+## Para colores
+
+## Conviertiendo los grupos de edad a colores
+col.group <- df$Age
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Age, col = col.group)
+```
+
+
+```{r}
+col.group <- df$Tissue
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Tissue, col = col.group)
+```
+
+
+
+# Analyze WT male vs other males
+
+## Preview boxplots
+
+```{r}
+data_analyze <- joined_filtered_data[,joined_filtered_data$Predicted_sex == 'male']
+
+dge <- get_dge(data_analyze)
+
+ggplot_genotype(data_analyze)
+```
+```{r}
+get_genotype_id(data_analyze)
+
+```
+
+## Make model
+
+```{r}
+mod <- make_model_genotype(data_analyze)
+
+vGene <- voom(dge, mod, plot = TRUE)
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- get_de_results(data_analyze, eb_results)
+
+dim(de_results)
+
+table(de_results$adj.P.Val < 0.05)
+```
+
+
+```{r}
+FC <- 12
+p <- 0.05
+
+make_MA_plot(de_results, eb_results, p, FC)
+```
+
+
+```{r}
+make_volcano(FC,p,de_results)
+```
+
+## Heatmaps
+
+
+```{r}
+## Extraer valores de los genes de interés
+
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
+rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
+
+df_male_genotype <- make_heatmap(data_analyze, exprs_heatmap)
+save(df_male_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/df_male_genotype.RData")
+
+```
+
+## Group data
+
+```{r}
+## Para colores
+
+## Conviertiendo los grupos de edad a colores
+col.group <- df$Age
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Age, col = col.group)
+```
+
+
+```{r}
+col.group <- df$Tissue
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Tissue, col = col.group)
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

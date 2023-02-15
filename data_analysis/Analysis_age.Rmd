@@ -1,5 +1,5 @@
 ---
-title: "Analysis_per_category"
+title: "Analysis_age"
 author: "Miguel Alberto Pantoja-Zepeda"
 date: "15/2/2023"
 output:
@@ -63,7 +63,7 @@ get_genotype_id <- function(x){
 
 
 make_model_genotype <- function(x){
-  mod <- model.matrix(~ sra_attribute.genotype +  sra_attribute.age + sra_attribute.tissue,
+  mod <- model.matrix(~   sra_attribute.age +sra_attribute.genotype + sra_attribute.tissue,
     data = colData(x)
 )
   mod
@@ -244,6 +244,33 @@ df <- make_heatmap(data_analyze, exprs_heatmap)
 ```
 
 
+
+```{r}
+## Para colores
+
+## Conviertiendo los grupos de edad a colores
+col.group <- df$Age
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Age, col = col.group)
+```
+
+
+```{r}
+col.group <- df$Tissue
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Tissue, col = col.group)
+```
+
+
+
 # Analyze WT female vs other females
 
 ## Genotype
@@ -297,6 +324,32 @@ rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
 df <- make_heatmap(data_analyze, exprs_heatmap)
 
 ```
+
+
+```{r}
+## Para colores
+
+## Conviertiendo los grupos de edad a colores
+col.group <- df$Age
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Age, col = col.group)
+```
+
+
+```{r}
+col.group <- df$Tissue
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Tissue, col = col.group)
+```
+
 
 
 # Analyze WT male vs other males
@@ -378,9 +431,5 @@ col.group <- as.character(col.group)
 plotMDS(vGene$E, labels = df$Tissue, col = col.group)
 ```
 
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
