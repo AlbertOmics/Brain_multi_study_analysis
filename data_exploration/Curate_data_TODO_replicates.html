@@ -256,8 +256,7 @@ div.tocify {
 <p>TODO Take into account biological replicates vs replicates</p>
 <pre class="r"><code>library(recount3)
 
-load(&quot;~/Miguel_Github/MERS_CoV_analysis/processed_data/raw_studies.RData&quot;)
-load(&quot;~/Miguel_Github/MERS_CoV_analysis/processed_data/predict_sex_studies.RData&quot;)</code></pre>
+load(&quot;~/Miguel_Github/MERS_CoV_analysis/processed_data/raw_studies.RData&quot;)</code></pre>
 <pre class="r"><code>names(raw_Data)</code></pre>
 <pre><code>##  [1] &quot;SRP215380&quot; &quot;SRP128050&quot; &quot;SRP199237&quot; &quot;SRP152324&quot; &quot;SRP152966&quot; &quot;SRP131336&quot;
 ##  [7] &quot;SRP130908&quot; &quot;SRP100500&quot; &quot;SRP125754&quot; &quot;SRP174174&quot; &quot;SRP099692&quot;</code></pre>
@@ -1457,6 +1456,17 @@ rse_gene_list &lt;- lapply(rse_gene_list, remove_failures)</code></pre>
 ## colnames(12): SRR5258545 SRR5258546 ... SRR5258555 SRR5258556
 ## colData names(184): rail_id external_id ... sra_attribute.Sex
 ##   assigned_gene_prop</code></pre>
+<pre class="r"><code>create_age_sub_category &lt;- function(x){
+  x$age_class &lt;- x$sra_attribute.age
+
+
+  x$age_class &lt;-  gsub(&#39;(e_?)|(e16.5)&#39;, &#39;embryo&#39;,x$age_class )
+  x$age_class &lt;-  gsub(&#39;(m4)|(m5-9)|(m7)|(m8)&#39;, &#39;adult&#39;,x$age_class )
+  x$age_class &lt;-  gsub(&#39;(p25)|(p42)&#39;, &#39;adolescent&#39;,x$age_class )
+  x$age_class &lt;-  gsub(&#39;(p42-p56)|(p55)&#39;, &#39;young adult&#39;,x$age_class )
+  x
+}
+rse_gene_list &lt;- lapply(rse_gene_list, create_age_sub_category)</code></pre>
 </div>
 <div id="merge" class="section level2">
 <h2>Merge</h2>

@@ -245,7 +245,7 @@ lapply(rse_gene_list, check_unique)
 ```
 
 
-```{r}
+```{r, echo=FALSE}
 #months <- grepl('months',rse_gene_SRP040070$sra_attribute.age)
 #raw_age <- rse_gene_SRP040070
 #rse_gene_SRP040070$sra_attribute.age <-  gsub(' weeks old', '',rse_gene_SRP040070$sra_attribute.age )
@@ -267,7 +267,7 @@ lapply(rse_gene_list, reshape_as)
 
 
 
-```{r}
+```{r, echo=FALSE}
 ## Resumen de las variables de interés
 get_summary <- function(x){
 summary(as.data.frame(colData(x)[
@@ -313,7 +313,7 @@ lapply(rse_gene_list, remove_check)
 
 ```
 
-```{r,  results = 'hide'}
+```{r,  echo=FALSE}
 
 remove_failures <- function(x){
   x <- x[, x$assigned_gene_prop > 0.3]
@@ -491,7 +491,7 @@ pheatmap(
 ```
 
 Cambiar brain a prenatal bran
-```{r}
+```{r, eval=FALSE}
 ## Extraer valores de los genes de interés
 exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
 rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
