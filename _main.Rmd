@@ -1,3 +1,32 @@
+---
+title: "Multi-analysiss"
+author: "Alberto pantoja"
+site: bookdown::bookdown_site
+apple-touch-sin: "icon_192.png"
+apple-touch-icon-size: 192
+favicon: "icon_32.png"
+github-repo: "AlbertOmics/Brain_multi_study_analysis"
+documentclass: book
+output:
+  bookdown::gitbook:
+    css: "style.css"
+    
+---
+
+# Multi studio analysis
+
+Placeholder
+
+
+## WT - Genotype
+## Female - Genotype
+## Male - Genotype
+## WT - age
+## Female - age
+## Male - age
+
+<!--chapter:end:index.Rmd-->
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -318,4 +347,22 @@ col.group <- as.character(col.group)
 ## MDS por grupos de edad
 plotMDS(vGene$E, labels = df$Tissue, col = col.group)
 ```
+
+
+<!--chapter:end:01_Analysis_genotype.Rmd-->
+
+
+# Multi studio analysis
+
+Placeholder
+
+
+## WT - Genotype
+## Female - Genotype
+## Male - Genotype
+## WT - age
+## Female - age
+## Male - age
+
+<!--chapter:end:README.Rmd-->
 
