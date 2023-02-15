@@ -16,3 +16,16 @@ male---genotype-1
 wt---age-1
 female---age-1
 male---age-1
+library
+preview-boxplots
+make-model
+heatmaps
+group-data
+preview-boxplots-1
+make-models
+heatmaps-1
+group-data-1
+preview-boxplots-2
+make-model-1
+heatmaps-2
+group-data-2
