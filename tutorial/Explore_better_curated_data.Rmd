@@ -28,10 +28,21 @@ load("~/Miguel_Github/MERS_CoV_analysis/processed_data/better_curated_data.RData
 
 
 ```{r}
+
+joined_filtered_data$age_class <- joined_filtered_data$sra_attribute.age
+
+
+joined_filtered_data$age_class <-  gsub('(e_?)|(e16.5)', 'embryo',joined_filtered_data$age_class )
+joined_filtered_data$age_class <-  gsub('(m4)|(m5-9)|(m7)|(m8)', 'adult',joined_filtered_data$age_class )
+joined_filtered_data$age_class <-  gsub('(p25)|(p42)', 'adolescent',joined_filtered_data$age_class )
+joined_filtered_data$age_class <-  gsub('(p42-p56)|(p55)', 'young adult',joined_filtered_data$age_class )
+
+
 reshape_as <- function(x){
   x$sra_attribute.age <-  factor(tolower(x$sra_attribute.age))
   x$sra_attribute.genotype <-  factor(tolower(x$sra_attribute.genotype))
   x$sra_attribute.Sex <-  factor(tolower(x$sra_attribute.Sex))
+  x$age_class <-  factor(tolower(x$age_class))
 
   x$sra_attribute.tissue <-  factor(tolower(x$sra_attribute.tissue))
   x$study <- factor(ifelse(x$sra_attribute.age == 'nada', "nada", metadata(x)$project))
@@ -43,6 +54,8 @@ joined_filtered_data <- reshape_as(joined_filtered_data)
 
 You can also embed plots, for example:
 ```{r}
+library("edgeR") # BiocManager::install("edgeR", update = FALSE)
+
   dge <- DGEList(
     counts = assay(joined_filtered_data, "counts"),
     genes = rowData(joined_filtered_data)
@@ -163,8 +176,8 @@ rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
 
 ## Creemos una tabla con información de las muestras
 ## y con nombres de columnas más amigables
-df <- as.data.frame(colData(joined_filtered_data)[, c("sra_attribute.Sex", "sra_attribute.age","sra_attribute.genotype","sra_attribute.tissue","study")])
-colnames(df) <- c("Gender", "Age", "Genotype", "Tissue", "Project")
+df <- as.data.frame(colData(joined_filtered_data)[, c("sra_attribute.Sex", "sra_attribute.age","sra_attribute.genotype","sra_attribute.tissue")])
+colnames(df) <- c("Gender", "Age", "Genotype", "Tissue")
 
 
 
@@ -210,13 +223,15 @@ table(joined_filtered_data$Predicted_sex)
 
 
 ```{r}
+
+
   dge <- DGEList(
     counts = assay(joined_filtered_data, "counts"),
     genes = rowData(joined_filtered_data)
   )
   dge <- calcNormFactors(dge)
   
-  mod <- model.matrix(~ Predicted_sex +  sra_attribute.age + sra_attribute.genotype + sra_attribute.tissue,
+  mod <- model.matrix(~ Predicted_sex +  age_class + sra_attribute.tissue  + sra_attribute.genotype,
     data = colData(joined_filtered_data)
 )
   
@@ -237,8 +252,8 @@ rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
 
 ## Creemos una tabla con información de las muestras
 ## y con nombres de columnas más amigables
-df <- as.data.frame(colData(joined_filtered_data)[, c("Predicted_sex", "sra_attribute.age","sra_attribute.tissue")])
-colnames(df) <- c("Gender", "Age","Tissue")
+df <- as.data.frame(colData(joined_filtered_data)[, c("Predicted_sex", "age_class","sra_attribute.tissue")])
+colnames(df) <- c("Gender", "Life stage","Tissue")
 
 
 
