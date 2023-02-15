@@ -11,12 +11,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-# MERS_CoV_analysis_
-
+# Multi studio analysis
+:)
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of MERS_CoV_analysis is to ...
+The goal of Multi studio analysis is to merge multiple Ilumina 4000 data from mouse...
 
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 

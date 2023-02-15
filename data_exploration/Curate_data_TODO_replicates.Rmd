@@ -383,7 +383,7 @@ rse_gene_list$SRP100500$sra_attribute.Sex <- rep('unknown', length(rse_gene_list
 
 rse_gene_list$SRP100500$sra_attribute.age <- rse_gene_list$SRP100500$sra_attribute.tissue
 
-rse_gene_list$SRP100500$sra_attribute.age <-  gsub('neural progenitor cells', 'E_unknown',rse_gene_list$SRP100500$sra_attribute.age )
+rse_gene_list$SRP100500$sra_attribute.age <-  gsub('neural progenitor cells', 'E_?',rse_gene_list$SRP100500$sra_attribute.age )
 rse_gene_list$SRP100500$sra_attribute.age <-  gsub('tumor cells', 'M5-9',rse_gene_list$SRP100500$sra_attribute.age )
 
 rse_gene_list$SRP100500$sra_attribute.tissue <-  gsub('tumor cells', 'tumor',rse_gene_list$SRP100500$sra_attribute.tissue )
@@ -608,6 +608,19 @@ rse_gene_list <- lapply(rse_gene_list, remove_failures)
 
 ```{r}
 joined_filtered_data <- cbind(rse_gene_list$SRP215380,rse_gene_list$SRP128050,rse_gene_list$SRP199237,rse_gene_list$SRP152324, rse_gene_list$SRP152966,rse_gene_list$SRP131336,rse_gene_list$SRP130908,rse_gene_list$SRP100500,rse_gene_list$SRP125754,rse_gene_list$SRP174174,rse_gene_list$SRP099692)
+
+```
+
+
+```{r}
+joined_filtered_data$age_class <- joined_filtered_data$sra_attribute.age
+
+
+joined_filtered_data$age_class <-  gsub('(e_?)|(e16.5)', 'embryo',joined_filtered_data$age_class )
+joined_filtered_data$age_class <-  gsub('(m4)|(m5-9)|(m7)|(m8)', 'adult',joined_filtered_data$age_class )
+joined_filtered_data$age_class <-  gsub('(p25)|(p42)', 'adolescent',joined_filtered_data$age_class )
+joined_filtered_data$age_class <-  gsub('(p42-p56)|(p55)', 'young adult',joined_filtered_data$age_class )
+
 ```
 
 ```{r}

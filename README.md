@@ -1,12 +1,12 @@
 
 <!-- README.md is generated fom README.Rmd. Please edit that file -->
 
-# MERS\_CoV\_analysis\_
+# Multi studio analysis
 
-<!-- badges: start -->
-<!-- badges: end -->
+:) <!-- badges: start --> <!-- badges: end -->
 
-The goal of MERS\_CoV\_analysis is to …
+The goal of Multi studio analysis is to merge multiple Ilumina 4000 data
+from mouse…
 
 What is special about using `README.Rmd` instead of just `README.md`?
 You can include R chunks like so:

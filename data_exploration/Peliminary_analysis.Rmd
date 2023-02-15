@@ -896,7 +896,6 @@ pheatmap(
 
 lets save this to make studies
 ```{r}
-save(raw_Data, file = "../processed_data/raw_studies.RData")
 save(joined_data, file = "../processed_data/predict_sex_studies.RData")
 
 ```
