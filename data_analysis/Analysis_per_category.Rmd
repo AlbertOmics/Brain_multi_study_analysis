@@ -28,6 +28,7 @@ library("ggplot2")
 library("limma")
 library("EnhancedVolcano")
 library("pheatmap")
+library("RColorBrewer")
 
 
 
@@ -35,7 +36,7 @@ library("pheatmap")
 
 # Functions
 
-```{r}
+```{r,collapse=TRUE}
 get_dge <- function(x){
   dge <- DGEList(
     counts = assay(x, "counts"),
@@ -123,52 +124,92 @@ make_volcano <- function(FC,p,de_results){
     border = 'partial')
 }
 
+
+
+make_MA_plot <- function(de_results, eb_results, p, FC){
+  de_results.filt <- de_results[de_results$adj.P.Val < p,]  
+  all_DEgenes <- de_results.filt[abs(de_results.filt$logFC)>FC,]
+  
+  DEgenes <- rownames(all_DEgenes) 
+  limma::plotMA(eb_results, coef = 2, status = rownames(eb_results$lods) %in% DEgenes, legend = FALSE,
+  main = "MA plot")
+  legend("bottomright", c("DE genes", "Not DE genes"), fill = c("red", "black"), inset = 0.01)
+}
+
+
+
+make_heatmap <- function(x, exprs_heatmap ){
+  
+## Creemos una tabla con información de las muestras
+## y con nombres de columnas más amigables
+df <- as.data.frame(colData(x)[, c( "age_class","sra_attribute.genotype","sra_attribute.tissue")])
+colnames(df) <- c( "Age", "Genotype", "Tissue")
+
+
+
+## Hagamos un heatmap
+pheatmap(
+    exprs_heatmap,
+    title='aaaah',
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df
+)
+
+pheatmap(
+    exprs_heatmap,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df,
+    scale = "row"
+)
+df
+}
+
 ```
 
 
 # Analyze the WT vs others
 
 ## Genotype
-```{r}
-
-
-
-dge <- get_dge(joined_filtered_data)
+```{r, message=FALSE}
 
 joined_filtered_data$genotype_factor <- factor(joined_filtered_data$sra_attribute.genotype, levels=unique(joined_filtered_data$sra_attribute.genotype))
 joined_filtered_data$genotype_factor <-factor( as.integer(joined_filtered_data$genotype_factor))
 
+data_analyze <-  joined_filtered_data
 
-ggplot_genotype(joined_filtered_data)
+
+dge <- get_dge(data_analyze)
+ggplot_genotype(data_analyze)
 
 
 ```
 ```{r}
-get_genotype_id(joined_filtered_data)
-```
-
-```{r}
-joined_filtered_data$sra_attribute.genotype <-  gsub('wild type','WT',joined_filtered_data$sra_attribute.genotype)
-```
-
-
-```{r}
-
-mod <- make_model_genotype(joined_filtered_data)
-colnames(mod)
-
+get_genotype_id(data_analyze)
 ```
 
 ```{r}
 
+mod <- make_model_genotype(data_analyze)
+#colnames(mod)
 vGene <- voom(dge, mod, plot = TRUE)
+
+```
+
+```{r}
+
 
 eb_results <- eBayes(lmFit(vGene))
 
-de_results <- get_de_results(joined_filtered_data, eb_results)
+de_results <- get_de_results(data_analyze, eb_results)
 dim(de_results)
-
 table(de_results$adj.P.Val < 0.05)
+
 
 ```
 
@@ -179,13 +220,7 @@ table(de_results$adj.P.Val < 0.05)
 FC <- 12
 p <- 0.005
 
-de_results.filt <- de_results[de_results$adj.P.Val < p,]  
-all_DEgenes <- de_results.filt[abs(de_results.filt$logFC)>FC,]
-
-DEgenes <- rownames(all_DEgenes) 
-plotMA(eb_results, coef = 2, status = rownames(eb_results$lods) %in% DEgenes, legend = FALSE,
-main = "MA plot")
-legend("bottomright", c("DE genes", "Not DE genes"), fill = c("red", "black"), inset = 0.01)
+make_MA_plot(de_results, eb_results, p, FC)
 ```
 
 
@@ -204,103 +239,146 @@ rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
 
 ## Creemos una tabla con información de las muestras
 ## y con nombres de columnas más amigables
-df <- as.data.frame(colData(joined_filtered_data)[, c("Predicted_sex", "age_class","sra_attribute.genotype","sra_attribute.tissue")])
-colnames(df) <- c("Gender", "Age", "Genotype", "Tissue")
+df <- make_heatmap(data_analyze, exprs_heatmap)
 
-
-
-## Hagamos un heatmap
-pheatmap(
-    exprs_heatmap,
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    show_rownames = TRUE,
-    show_colnames = FALSE,
-    annotation_col = df
-)
 ```
+
+
 # Analyze WT female vs other females
 
 ## Genotype
 ```{r}
-female_data <- joined_filtered_data[,joined_filtered_data$Predicted_sex == 'female']
+data_analyze <- joined_filtered_data[,joined_filtered_data$Predicted_sex == 'female']
 
-f_dge <- get_dge(female_data)
+dge <- get_dge(data_analyze)
 
-ggplot_genotype(female_data)
+ggplot_genotype(data_analyze)
 ```
 ```{r}
-get_genotype_id(female_data)
+get_genotype_id(data_analyze)
 
-```
-
-
-```{r}
-f_mod <- make_model_genotype(female_data)
-
-f_vGene <- voom(f_dge, f_mod, plot = TRUE)
-
-f_eb_results <- eBayes(lmFit(f_vGene))
-
-f_de_results <- get_de_results(female_data, f_eb_results)
-
-dim(f_de_results)
-
-table(f_de_results$adj.P.Val < 0.05)
 ```
 
 
 ```{r}
+mod <- make_model_genotype(data_analyze)
+
+vGene <- voom(dge, mod, plot = TRUE)
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- get_de_results(data_analyze, eb_results)
+
+dim(de_results)
+
+table(de_results$adj.P.Val < 0.05)
+```
 
 
-
-
+```{r}
 
 FC <- 2
 p <- 0.05
+make_MA_plot(de_results, eb_results, p, FC)
 
-
-f_de_results.filt <- f_de_results[f_de_results$adj.P.Val < p,]  #filtering by FDR < 0.01
-all_DEgenes <- f_de_results.filt[abs(f_de_results.filt$logFC)>FC,] # filtering by logFC > 10
-DEgenes <- rownames(all_DEgenes) 
-plotMA(f_eb_results, coef = 2, status = rownames(f_eb_results$lods) %in% DEgenes, legend = FALSE,
-main = "MA plot")
-
-legend("bottomright", c("DE genes", "Not DE genes"), fill = c("red", "black"), inset = 0.01)
 ```
 
 
 ```{r}
-make_volcano(2,p,f_de_results)
+make_volcano(FC,p,de_results)
 ```
 
 
 ```{r}
 ## Extraer valores de los genes de interés
-exprs_heatmap <- f_vGene$E[rank(f_de_results$adj.P.Val) <= 25, ]
-rownames(exprs_heatmap) <- f_de_results[rownames(exprs_heatmap),'gene_name']
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
+rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
 
-## Creemos una tabla con información de las muestras
-## y con nombres de columnas más amigables
-df <- as.data.frame(colData(female_data)[, c( "age_class","sra_attribute.genotype","sra_attribute.tissue")])
-colnames(df) <- c( "Age", "Genotype", "Tissue")
+df <- make_heatmap(data_analyze, exprs_heatmap)
 
+```
 
 
-## Hagamos un heatmap
-pheatmap(
-    exprs_heatmap,
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    show_rownames = TRUE,
-    show_colnames = FALSE,
-    annotation_col = df
-)
+# Analyze WT male vs other males
+
+## Genotype
+```{r}
+data_analyze <- joined_filtered_data[,joined_filtered_data$Predicted_sex == 'male']
+
+dge <- get_dge(data_analyze)
+
+ggplot_genotype(data_analyze)
+```
+```{r}
+get_genotype_id(data_analyze)
+
+```
+
+
+```{r}
+mod <- make_model_genotype(data_analyze)
+
+vGene <- voom(dge, mod, plot = TRUE)
+
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- get_de_results(data_analyze, eb_results)
+
+dim(de_results)
+
+table(de_results$adj.P.Val < 0.05)
+```
+
+
+```{r}
+FC <- 12
+p <- 0.05
+
+make_MA_plot(de_results, eb_results, p, FC)
+```
+
+
+```{r}
+make_volcano(FC,p,de_results)
+```
+
+
+```{r}
+## Extraer valores de los genes de interés
+
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
+rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
+
+df <- make_heatmap(data_analyze, exprs_heatmap)
 ```
 
 
 
-# Analyze WT male vs other males
+```{r}
+## Para colores
+
+## Conviertiendo los grupos de edad a colores
+col.group <- df$Age
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Age, col = col.group)
+```
+
+
+```{r}
+col.group <- df$Tissue
+levels(col.group) <- brewer.pal(nlevels(col.group), "Set1")
+
+col.group <- as.character(col.group)
+
+## MDS por grupos de edad
+plotMDS(vGene$E, labels = df$Tissue, col = col.group)
+```
+
+
 ```{r pressure, echo=FALSE}
 plot(pressure)
 ```
