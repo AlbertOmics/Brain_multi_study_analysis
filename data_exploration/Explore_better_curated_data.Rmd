@@ -188,8 +188,8 @@ sex_genes <- c('Uty','Ddx3y','Kdm5d','Eif2s3y', 'Xist', 'Tsix')
 raw_selection <- as_tibble(t(exprs_heatmap[sex_genes,]),rownames = "idx")
 raw_selection <- raw_selection %>% 
   mutate(Predicted_sex = case_when(
-    Uty < 0 & Ddx3y < 0 & Kdm5d < 0 & Eif2s3y < 0 & Xist > 0 & Tsix > 0 ~ "female",
-    Uty > 0 & Ddx3y > 0 & Kdm5d > 0 & Eif2s3y > 0 & Xist < 3 & Tsix < 3 ~ "male",
+    Uty < 0 & Ddx3y < 0 & Kdm5d < 0 & Eif2s3y < 0 & Xist > -0.3 & Tsix > -0.3 ~ "female",
+    Uty > 0 & Ddx3y > 0 & Kdm5d > 0 & Eif2s3y > 0 & Xist < 8 & Tsix < 8 ~ "male",
     TRUE ~ "unknown"
   ))
 table(raw_selection$Predicted_sex)
@@ -241,8 +241,8 @@ rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
 
 ## Creemos una tabla con información de las muestras
 ## y con nombres de columnas más amigables
-df <- as.data.frame(colData(joined_filtered_data)[, c("Predicted_sex","sra_attribute.tissue")])
-colnames(df) <- c("Gender","Tissue")
+df <- as.data.frame(colData(joined_filtered_data)[, c("Predicted_sex","age_class","sra_attribute.tissue")])
+colnames(df) <- c("Gender","Stage","Tissue")
 
 
 
@@ -257,4 +257,10 @@ pheatmap(
     annotation_col = df
 )
 ```
+
+```{r}
+improve_curation <- joined_filtered_dataf
+save(improve_curation, file ="~/Miguel_Github/MERS_CoV_analysis/processed_data/improved_curation.RData")
+```
+
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
