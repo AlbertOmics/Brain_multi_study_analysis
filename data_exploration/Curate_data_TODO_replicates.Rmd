@@ -19,7 +19,6 @@ TODO Take into account biological replicates vs replicates
 library(recount3)
 
 load("~/Miguel_Github/MERS_CoV_analysis/processed_data/raw_studies.RData")
-load("~/Miguel_Github/MERS_CoV_analysis/processed_data/predict_sex_studies.RData")
 ```
 
 ```{r, }
@@ -604,6 +603,23 @@ rse_gene_list <- lapply(rse_gene_list, remove_failures)
 
 ```
 
+
+```{r}
+create_age_sub_category <- function(x){
+  x$age_class <- x$sra_attribute.age
+
+
+  x$age_class <-  gsub('(e_?)|(e16.5)', 'embryo',x$age_class )
+  x$age_class <-  gsub('(m4)|(m5-9)|(m7)|(m8)', 'adult',x$age_class )
+  x$age_class <-  gsub('(p25)|(p42)', 'adolescent',x$age_class )
+  x$age_class <-  gsub('(p42-p56)|(p55)', 'young adult',x$age_class )
+  x
+}
+rse_gene_list <- lapply(rse_gene_list, create_age_sub_category)
+
+```
+
+
 ## Merge
 
 ```{r}
@@ -612,16 +628,6 @@ joined_filtered_data <- cbind(rse_gene_list$SRP215380,rse_gene_list$SRP128050,rs
 ```
 
 
-```{r}
-joined_filtered_data$age_class <- joined_filtered_data$sra_attribute.age
-
-
-joined_filtered_data$age_class <-  gsub('(e_?)|(e16.5)', 'embryo',joined_filtered_data$age_class )
-joined_filtered_data$age_class <-  gsub('(m4)|(m5-9)|(m7)|(m8)', 'adult',joined_filtered_data$age_class )
-joined_filtered_data$age_class <-  gsub('(p25)|(p42)', 'adolescent',joined_filtered_data$age_class )
-joined_filtered_data$age_class <-  gsub('(p42-p56)|(p55)', 'young adult',joined_filtered_data$age_class )
-
-```
 
 ```{r}
 save(joined_filtered_data, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/better_curated_data.RData")
