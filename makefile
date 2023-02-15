@@ -7,7 +7,7 @@ usage:
 	@echo "	local	open the local version of the course (index.html)"
 	@echo
 
-GITHUB_REPO=https://github.com/jvanheld/LCG_BEII
+GITHUB_REPO=https://github.com/AlbertOmics/LCG_BEII
 github:
 	@echo "Github repository	${GITHUB_REPO}"
 	@open ${GIHUB_REPO}
