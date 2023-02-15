@@ -17,11 +17,24 @@ ggplot_genotype <- function(x){
 
 }
 
+ggplot_age <- function(x){
+  ggplot(as.data.frame(colData(x)), aes(y = assigned_gene_prop, x = age_class)) +
+    geom_boxplot() + geom_jitter(width=0.15,alpha=0.5)+
+    theme_bw(base_size = 20) +
+    ylab("Assigned Gene Prop") +
+    xlab("Age Group")+
+    scale_x_discrete(guide = guide_axis(n.dodge=3))
+
+}
 get_genotype_id <- function(x){
   unique(paste(x$genotype_factor,x$sra_attribute.genotype))
 
 }
 
+get_age_id <- function(x){
+  unique(paste(x$sra_attribute.age,x$sra_attribute.genotype))
+
+}
 
 make_model_age <- function(x){
   mod <- model.matrix(~   sra_attribute.age +sra_attribute.genotype + sra_attribute.tissue,

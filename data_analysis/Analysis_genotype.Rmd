@@ -113,8 +113,12 @@ rownames(exprs_heatmap) <-  de_results[rownames(exprs_heatmap),'gene_name']
 ## Creemos una tabla con información de las muestras
 ## y con nombres de columnas más amigables
 df_WT_genotype <- make_heatmap(data_analyze, exprs_heatmap)
-
+df <- df_WT_genotype
 save(df_WT_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/df_WT_genotype.RData")
+
+exprs_heatmap_WT_genotype <- exprs_heatmap
+save(exprs_heatmap_WT_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_WT_genotype.RData")
+
 ```
 
 ## Group data
@@ -198,8 +202,11 @@ exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
 rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
 
 df_female_genotype <- make_heatmap(data_analyze, exprs_heatmap)
-
+df <- df_female_genotype
 save(df_female_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/df_female_genotype.RData")
+
+exprs_heatmap_female_genotype <- exprs_heatmap
+save(exprs_heatmap_female_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_female_genotype.RData")
 
 ```
 
@@ -286,7 +293,14 @@ exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 25, ]
 rownames(exprs_heatmap) <- de_results[rownames(exprs_heatmap),'gene_name']
 
 df_male_genotype <- make_heatmap(data_analyze, exprs_heatmap)
+
+
 save(df_male_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/df_male_genotype.RData")
+
+exprs_heatmap_male_genotype <- exprs_heatmap
+save(exprs_heatmap_male_genotype, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_male_genotype.RData")
+
+df <- df_male_genotype
 
 ```
 
@@ -316,5 +330,3 @@ col.group <- as.character(col.group)
 plotMDS(vGene$E, labels = df$Tissue, col = col.group)
 ```
 
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

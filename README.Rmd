@@ -21,7 +21,9 @@ The goal of Multi studio analysis is to merge multiple Ilumina 4000 data from mo
 What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
 ```{r cars, style="background: pink;"}
-summary(cars)
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_female_genotype.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_male_genotype.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_WT_genotype.RData")
 ```
 
 You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/master/examples>.
