@@ -1,4 +1,4 @@
-Brain Multi-studio analysis
+🧠 Brain Multi-studio analysis
 ================
 
 <!-- README.md is generated fom README.Rmd. Please edit that file -->
