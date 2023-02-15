@@ -259,8 +259,8 @@ pheatmap(
 ```
 
 ```{r}
-improve_curation <- joined_filtered_dataf
-save(improve_curation, file ="~/Miguel_Github/MERS_CoV_analysis/processed_data/improved_curation.RData")
+improve_curation <- joined_filtered_data
+save(improve_curation, file = "~/Miguel_Github/MERS_CoV_analysis/processed_data/sex_assingned_data.RData")
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

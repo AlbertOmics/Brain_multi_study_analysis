@@ -611,8 +611,9 @@ create_age_sub_category <- function(x){
 
   x$age_class <-  gsub('(e_)|(e16.5)', 'embryo',x$age_class, ignore.case = TRUE )
   x$age_class <-  gsub('(m4)|(m5_9)|(m7)|(m8)', 'adult',x$age_class, ignore.case = TRUE )
+    x$age_class <-  gsub('(p42_p56)|(p55)', 'young adult',x$age_class, ignore.case = TRUE )
+
   x$age_class <-  gsub('(p25)|(p42)', 'adolescent',x$age_class, ignore.case = TRUE )
-  x$age_class <-  gsub('(p42_p56)|(p55)', 'young adult',x$age_class, ignore.case = TRUE )
   x
 }
 rse_gene_list <- lapply(rse_gene_list, create_age_sub_category)
