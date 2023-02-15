@@ -183,7 +183,7 @@ table(de_results$adj.P.Val < 0.05)
 
 ```{r}
 
-FC <- 2
+FC <- 12
 p <- 0.05
 make_MA_plot(de_results, eb_results, p, FC)
 
