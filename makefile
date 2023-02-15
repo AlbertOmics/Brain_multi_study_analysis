@@ -16,7 +16,7 @@ local:
 	@echo "Opening local version of the web pages"
 	@open index.html 
 
-WEB_SITE=http://jvanheld.github.io/LCG_BEII
+WEB_SITE=http://AlbertOmics.github.io/Brain_multi_study_analysis
 web:
 	@echo "WEB_SITE	@${WEB_SITE}"
 	@open ${WEB_SITE}
