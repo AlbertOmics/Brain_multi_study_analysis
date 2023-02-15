@@ -9,31 +9,200 @@ github-repo: "AlbertOmics/Brain_multi_study_analysis"
 documentclass: book
 output:
   bookdown::gitbook:
-    includes:
-      after_body: map_and_ga.html
     css: "style.css"
     
 ---
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+
+<!-- README.md is generated fom README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
 ```
 
-## R Markdown
+# Multi studio analysis
+:)
+<!-- badges: start -->
+<!-- badges: end -->
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The goal of Multi studio analysis is to merge multiple Ilumina 4000 data from mouse...
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+We merged the information of the following studios and based on their genetic signature, we assigned sex on the mouses that did not have it assigned:
 
-```{r cars}
-summary(cars)
+
+SRA_list <- c('SRP215380',
+'SRP128050',
+'SRP199237',
+'SRP152324',
+'SRP152966',
+'SRP131336',
+'SRP130908',
+'SRP100500',
+'SRP125754',
+'SRP174174',
+'SRP099692'
+)
+
+
+
+```{r cars, echo=FALSE, message=FALSE}
+
+library("edgeR") # BiocManager::install("edgeR", update = FALSE)
+library("ggplot2")
+library("limma")
+library("EnhancedVolcano")
+library("pheatmap")
+library("RColorBrewer")
+
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_female_genotype.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_male_genotype.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_WT_genotype.RData")
+
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_WT_genotype.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_male_genotype.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_female_genotype.RData")
 ```
 
-## Including Plots
+# Model based on genotype
 
-You can also embed plots, for example:
+## WT - Genotype
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r , echo = FALSE}
+
+df_WT_genotype$Genotype <- factor(ifelse(!df_WT_genotype$Genotype %in% c('wild type','wt'), "Non-WT", "WT"))
+
+df_WT_genotype$Age <- factor(ifelse(df_WT_genotype$Age == 'embryo', "embryo", ifelse(df_WT_genotype$Age == 'unknown', "unknown", "adult")))
+
+  ## Hagamos un heatmap
+  pheatmap(
+    exprs_heatmap_WT_genotype,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df_WT_genotype
+  )
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Female - Genotype
+
+
+```{r pressure, echo = FALSE}
+
+df_female_genotype$Genotype <- factor(ifelse(!df_female_genotype$Genotype %in% c('wild type','wt'), "Non-WT", "WT"))
+
+df_female_genotype$Age <- factor(ifelse(df_female_genotype$Age == 'embryo', "embryo", ifelse(df_female_genotype$Age == 'unknown', "unknown", "adult")))
+
+  ## Hagamos un heatmap
+  pheatmap(
+    exprs_heatmap_female_genotype,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df_female_genotype
+  )
+
+```
+
+## Male - Genotype
+
+```{r , echo = FALSE}
+
+df_male_genotype$Genotype <- factor(ifelse(!df_male_genotype$Genotype %in% c('wild type','wt'), "Non-WT", "WT"))
+
+df_male_genotype$Age <- factor(ifelse(df_male_genotype$Age == 'embryo', "embryo", ifelse(df_male_genotype$Age == 'unknown', "unknown", "adult")))
+
+
+
+  ## Hagamos un heatmap
+  pheatmap(
+    exprs_heatmap_male_genotype,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df_male_genotype
+  )
+
+```
+
+```{r}
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_female_age.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_male_age.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/df_WT_age.RData")
+
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_WT_age.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_male_age.RData")
+load("~/Miguel_Github/MERS_CoV_analysis/processed_data/exprs_heatmap_female_age.RData")
+```
+
+
+# Model based on age
+
+## WT - age
+
+```{r , echo = FALSE}
+
+df_WT_age$Genotype <- factor(ifelse(!df_WT_age$Genotype %in% c('wild type','wt'), "Non-WT", "WT"))
+
+df_WT_age$Age <- factor(ifelse(df_WT_age$Age == 'embryo', "embryo", ifelse(df_WT_age$Age == 'unknown', "unknown", "adult")))
+
+  ## Hagamos un heatmap
+  pheatmap(
+    exprs_heatmap_WT_age,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df_WT_age
+  )
+
+```
+
+## Female - age
+
+
+```{r , echo = FALSE}
+
+df_female_age$Genotype <- factor(ifelse(!df_female_age$Genotype %in% c('wild type','wt'), "Non-WT", "WT"))
+
+df_female_age$Age <- factor(ifelse(df_female_age$Age == 'embryo', "embryo", ifelse(df_female_age$Age == 'unknown', "unknown", "adult")))
+
+  ## Hagamos un heatmap
+  pheatmap(
+    exprs_heatmap_female_age,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df_female_age
+  )
+
+```
+
+## Male - age
+
+```{r , echo = FALSE}
+
+df_male_age$Genotype <- factor(ifelse(!df_male_age$Genotype %in% c('wild type','wt'), "Non-WT", "WT"))
+
+df_male_age$Age <- factor(ifelse(df_male_age$Age == 'embryo', "embryo", ifelse(df_male_age$Age == 'unknown', "unknown", "adult")))
+
+
+
+  ## Hagamos un heatmap
+  pheatmap(
+    exprs_heatmap_male_age,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = TRUE,
+    show_colnames = FALSE,
+    annotation_col = df_male_age
+  )
+
+```
